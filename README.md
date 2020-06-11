@@ -1,47 +1,71 @@
-# node-fpe
+# fpe
 
-[![Build Status](https://travis-ci.org/mderazon/node-fpe.svg?branch=master)](https://travis-ci.org/mderazon/node-fpe) [![styled with prettier](https://img.shields.io/badge/styled_with-prettier-ff69b4.svg)](https://github.com/prettier/prettier)
+Format-preserving encryption (FPE).
 
-> Simple format-preserving encryption implementation
+Current implementations:
 
-In general, [format-preserving encryption](https://en.wikipedia.org/wiki/Format-preserving_encryption) is a type of encryption such that the output (the ciphertext) is in the same format as the input (the plaintext).
+- FPE constructions of Black and Rogaway from a prefix cipher (https://en.wikipedia.org/wiki/Format-preserving_encryption#FPE_from_a_prefix_cipher)
+  - Implement Cipher class, require `enc_func` argument as a prefix cipher
+  - Provide a common (prefix) cipher: `encrypt_aes_256_ecb`
 
-This library uses a simple FPE from a [prefix cipher](https://en.wikipedia.org/wiki/Format-preserving_encryption#FPE_from_a_prefix_cipher). The method is only useful for a small domains, for example numbers or alphanumeric.
+## Installing
 
-## Usage
-
-### Example:
-
-cipher with default domain ([0-9]) and default encryption alg (aes-256-cbc):
-
-```js
-const fpe = require('node-fpe');
-const cipher = fpe({ password: 'secret' });
-
-cipher.encrypt('1234567');
-// '4185730'
-
-cipher.decrypt('4185730');
-// '1234567'
+```
+npm install @nghiaht/fpe
 ```
 
-cipher with custom domain ([A-E]) and default encryption alg (aes-256-cbc):
+## Example
 
-```js
-const fpe = require('node-fpe');
-const cipher = fpe({ password: 'secret', domain: ['A', 'B', 'C', 'D', 'E'] });
+Use `aes-256-ecb` as prefix cipher:
 
-cipher.encrypt('BEEBEE');
-// 'CBBCBB'
+```
+const FPEPrefixCipher = require("@nghiaht/fpe").FPEPrefixCipher;
+const cipher = new FPEPrefixCipher.Cipher({
+    domain: "abc123".split(""),
+    enc_func: function (v) {
+      return FPEPrefixCipher.encrypt_aes_256_ecb("password", v);
+    },
+});
 
-cipher.decrypt('CBBCBB');
-// 'BEEBEE'
+const input = "abc123";
+const encrypted = cipher.encrypt(input);
+const decrypted = cipher.decrypt(encrypted);
 ```
 
-### Options
+Please provide your custom prefix cipher (block cipher, etc..) as an agument `enc_func` in the Cipher constructor:
 
-Options to pass on to _node-fpe_ are:
+```
+function my_enc_func(v) {
+    return my_encrypt_aes("password", v);
+}
 
-- `password`: **mandatory**. a secret used in the underlying block cipher.
-- `algorithm`: **optional**. the underlying block cipher used. similar to the input to node's [crypto.createCipher()](https://nodejs.org/api/crypto.html#crypto_crypto_createcipher_algorithm_password). **default**: _aes-256-cbc_
-- `domain`: **optional**. an array of characters used as the FPE domain. **default**: 0-9 digits
+const cipher = new FPEPrefixCipher.Cipher({
+    domain: "abc123".split(""),
+    enc_func: my_enc_func
+});
+```
+
+Raise error when your input is not in the input domain:
+
+```
+const cipher = new FPEPrefixCipher.Cipher({
+    domain: "1234567890".split(""),
+    enc_func: function (v) {
+      return v;
+    },
+});
+
+cipher.encrypted("abc123")  // throw Error("bad_input_or_invalid_domain"), "abc" not in domain: "1234567890"
+
+```
+
+# Testing
+
+```
+npm run test
+```
+
+# Potential Actions
+
+- Implement more FPE constructions.
+- Prefix cipher: implement more or generalize into a base encoder function supporting various block cipher algorithms.
