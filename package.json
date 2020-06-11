@@ -1,0 +1,26 @@
+{
+  "name": "@nghiaht/fpe",
+  "version": "2020.0.1",
+  "description": "Format-preserving encryption",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nghiaht/node-fpe.git"
+  },
+  "keywords": [
+    "fpe"
+  ],
+  "author": "nghiaht",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nghiaht/node-fpe/issues"
+  },
+  "homepage": "https://github.com/nghiaht/node-fpe#readme",
+  "devDependencies": {
+    "jest": "^26.0.1"
+  },
+  "dependencies": {}
+}
