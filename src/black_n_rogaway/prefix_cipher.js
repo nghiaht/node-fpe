@@ -80,7 +80,33 @@ function encrypt_aes_256_ecb(password, text) {
   return crypted;
 }
 
+function encrypt_aes_128_ecb(password, text) {
+  // PKCS7 padding utility, inspired from pycryptodome
+  function pad(input, block_size) {
+    if (input.length >= block_size) return input.slice(0, block_size);
+    else {
+      const padding_len = block_size - (input.length % block_size);
+      const temp = [input];
+      for (var i = 0; i < padding_len; i++) {
+        temp.push(Buffer.from([padding_len]));
+      }
+      return Buffer.concat(temp);
+    }
+  }
+
+  password = pad(Buffer.from(password), 16);
+
+  const crypto = require("crypto");
+
+  const cipher = crypto.createCipheriv("aes-128-ecb", password, null);
+
+  var crypted = cipher.update(text, "utf8", "hex");
+  crypted += cipher.final("hex");
+  return crypted;
+}
+
 module.exports = {
   Cipher,
+  encrypt_aes_128_ecb,
   encrypt_aes_256_ecb,
 };
