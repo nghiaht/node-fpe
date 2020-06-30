@@ -1,6 +1,6 @@
 {
   "name": "@nghiaht/fpe",
-  "version": "2020.0.1",
+  "version": "2020.0.2",
   "description": "Format-preserving encryption",
   "main": "src/index.js",
   "scripts": {
